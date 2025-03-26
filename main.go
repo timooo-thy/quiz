@@ -1,10 +1,12 @@
 package main
 
 import (
-	"bufio"
 	"encoding/csv"
 	"fmt"
+	"math/rand"
 	"os"
+	"strings"
+	"time"
 )
 
 type Problem struct {
@@ -18,11 +20,7 @@ func check(e error) {
 	}
 }
 
-func waitForEnter() {
-    fmt.Println("Press Enter to start the quiz")
-    reader := bufio.NewReader(os.Stdin)
-    _, _ = reader.ReadString('\n')
-}
+const TIME_LIMIT = 30 * time.Second
 
 func main() {
 	file, err :=  os.Open("problems.csv")
@@ -44,17 +42,30 @@ func main() {
 		})
 	}
 
-	fmt.Println("Welcome to the Quiz Game!")
-	fmt.Println("Press Enter to start the quiz")
-	fmt.Scanln()
+	rand.Shuffle(len(problems), func(i, j int) {
+		problems[i], problems[j] = problems[j], problems[i]
+	})
 
 	correct := 0
 	total := len(problems)
+
+	fmt.Println("Welcome to the Quiz Game!")
+	fmt.Println("Press Enter to start the quiz.")
+	fmt.Scanln()
+	fmt.Printf("Your %v starts now.\n\n", TIME_LIMIT)
+	time.AfterFunc(TIME_LIMIT, func() {
+		fmt.Println("\n⏰ Time's up!")
+		fmt.Printf("That's the end of the quiz. Your score is %v/%v.", correct, total)
+		os.Exit(0)
+	})
 
 	for p := range problems {
 		var answer string
 		fmt.Println(problems[p].question)
 		fmt.Scanln(&answer)
+		answer = strings.TrimSpace(answer)
+		answer = strings.ToLower(answer)
+		
 		if answer == problems[p].answer {
 			correct += 1
 			fmt.Println("You're right!")
