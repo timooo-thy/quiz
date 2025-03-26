@@ -21,6 +21,7 @@ func check(e error) {
 }
 
 const TIME_LIMIT = 30 * time.Second
+const IS_RANDOM = true
 
 func main() {
 	file, err :=  os.Open("problems.csv")
@@ -42,9 +43,11 @@ func main() {
 		})
 	}
 
-	rand.Shuffle(len(problems), func(i, j int) {
-		problems[i], problems[j] = problems[j], problems[i]
-	})
+	if IS_RANDOM {
+		rand.Shuffle(len(problems), func(i, j int) {
+			problems[i], problems[j] = problems[j], problems[i]
+		})
+	}
 
 	correct := 0
 	total := len(problems)
